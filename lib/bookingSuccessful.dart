@@ -19,11 +19,11 @@ class BookingSuccessful extends StatelessWidget {
             children: [
               //icon
               Icon(Icons.check_circle, color: Colors.green, size: 100),
-              SizedBox(height: 20),
+              SizedBox(height: 80),
 
               // success text
               Text(
-                "Your appointment has been booked successfully!",
+                "Thank you for your booking!",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
@@ -31,39 +31,35 @@ class BookingSuccessful extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 60),
 
               // buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  //home button
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                      textStyle: TextStyle(fontSize: 16),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text("Home Page"),
-                  ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  textStyle: TextStyle(fontSize: 16),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Home Page"),
+              ),
 
-                  // manage appontments button
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                      textStyle: TextStyle(fontSize: 16),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ManageAppointments()),
-                      );
-                    },
-                    child: Text("Manage Appointments"),
-                  ),
-                ],
+              SizedBox(height: 30),
+
+              // manage appontments button
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  textStyle: TextStyle(fontSize: 16),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ManageAppointments()),
+                  );
+                },
+                child: Text("Manage Appointments"),
               ),
             ],
           ),
