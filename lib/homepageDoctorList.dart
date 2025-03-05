@@ -1,5 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:group02_medilink/appointmentDetails.dart';
 import 'package:group02_medilink/dataLists.dart';
+import 'package:group02_medilink/doctorDetail.dart';
+import 'package:group02_medilink/doctorInfo.dart';
+import 'package:group02_medilink/registrationForm.dart';
 
 void main() {
   runApp(Homepage());
@@ -16,6 +22,11 @@ class Homepage extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      routes: {
+        '/doctorPage': (context) => DoctorDetail(),
+        '/bookingPage': (context) => AppointmentDetails(),
+        '/registerPage': (context) => RegistrationPage()
+      },
       home: MyHomePage(
         title: '',
       ),
@@ -40,13 +51,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _bookServiceAppointment() {}
 
-  final TextEditingController _searchingInputController = TextEditingController();
+  final TextEditingController _searchingInputController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Home Page'),
+        title: Text('MediLink Home Page'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Center(
@@ -54,13 +66,41 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           const SizedBox(height: 10),
-          Text(
-            'Welcome [user]!',
-            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: Row(
+              children: [
+                Text(
+                  'Welcome to MediLink',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Spacer(),
+                Text('Login',
+                    style: TextStyle(
+                      color: Colors.blue, // Make it look clickable
+                      fontWeight: FontWeight.bold,
+                    )),
+                SizedBox(
+                  width: 16,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/registerPage');
+                  },
+                  child: Text(
+                    'Register',
+                    style: TextStyle(
+                      color: Colors.blue, // Make it look clickable
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
           Container(
             padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-            child:TextField(
+            child: TextField(
               controller: _searchingInputController,
               decoration: InputDecoration(
                 hintText: 'Search or ask AI assistant',
@@ -72,8 +112,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               onSubmitted: (value) {
                 // Handle search input here
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Searching $value")));
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text("Searching $value")));
                 _searchingInputController.clear();
               },
             ),
@@ -120,9 +160,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         Container(
                           alignment: Alignment.center,
                           child: ElevatedButton(
-                              onPressed: (){
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text("You book service ${service['service_name']}")));
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/bookingPage');
                               },
                               child: Text(
                                 "Book Appointment",
@@ -163,34 +202,59 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ClipOval(
-                          child: Image.network(
-                            doctor['image'],
-                            width: 90,
-                            height: 90,
-                            fit: BoxFit.cover,
+                        GestureDetector(
+                          onTap: () {
+                            Map<String, dynamic> doctorData = _doctors[index];
+                            Doctor doctor = Doctor(
+                                '33782916e2329fj3',
+                                doctorData['first_name'],
+                                doctorData['last_name'],
+                                doctorData['specialization'],
+                                doctorData['email'],
+                                doctorData['phone_number'],
+                                doctorData['office_address'],
+                                doctorData['availability'],
+                                doctorData['consultation_fee'],
+                                doctorData['created_at'],
+                                doctorData['updated_at']);
+                            Navigator.pushNamed(
+                              context,
+                              '/doctorPage',
+                              arguments: doctor,
+                            );
+                          },
+                          child: Column(
+                            children: [
+                              ClipOval(
+                                child: Image.network(
+                                  doctor['image'],
+                                  width: 90,
+                                  height: 90,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                doctor['first_name'],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                doctor['specialization'],
+                                style: const TextStyle(color: Colors.grey),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 5),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          doctor['first_name'],
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          doctor['specialization'],
-                          style: const TextStyle(color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 5),
                         Container(
                           alignment: Alignment.center,
                           child: ElevatedButton(
                               onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text("You book appointment with ${doctor['first_name']}")));
+                                Navigator.pushNamed(context, '/bookingPage');
                               },
                               child: Text(
                                 "Book Appointment",

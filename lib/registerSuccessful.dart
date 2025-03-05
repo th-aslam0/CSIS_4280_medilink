@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'appointmentDetails.dart';
 import 'manageAppointments.dart';
 
-class BookingSuccessful extends StatelessWidget {
+class RegisterSuccessful extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Booking Successful"),
+        title: Text("Register Successful"),
         backgroundColor: Colors.blue,
       ),
       body: Center(
@@ -23,7 +23,7 @@ class BookingSuccessful extends StatelessWidget {
 
               // success text
               Text(
-                "Thank you for your booking!",
+                "Thank you for your registration!",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
@@ -55,13 +55,10 @@ class BookingSuccessful extends StatelessWidget {
                   textStyle: TextStyle(fontSize: 16),
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ManageAppointments()),
-                  );
+                  Navigator.pop(context);
+                  Navigator.pop(context);
                 },
-                child: Text("Manage Appointments"),
+                child: Text("Sign in"),
               ),
             ],
           ),
