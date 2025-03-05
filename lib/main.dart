@@ -58,6 +58,132 @@ class _MyHomePageState extends State<MyHomePage> {
       "created_at": "2025-01-15T10:00:00Z",
       "updated_at": "2025-02-20T16:00:00Z"
     },
+    {
+      "_id": "603d9f1f3f1c2b001f5a5bcb",
+      "first_name": "Dr. Sarah",
+      "last_name": "Lee",
+      "specialization": "Cardiologist",
+      "email": "dr.sarah.lee@email.com",
+      "phone_number": "+1 555 234 5678",
+      "office_address": {
+        "street": "321 Heart Ave",
+        "city": "Vancouver",
+        "province": "BC",
+        "postal_code": "V5T 2A2"
+      },
+      "availability": [
+        {"day": "Tuesday", "hours": "10:00-13:00"},
+        {"day": "Thursday", "hours": "15:00-18:00"}
+      ],
+      "consultation_fee": 150,
+      "created_at": "2025-01-20T11:30:00Z",
+      "updated_at": "2025-02-25T13:00:00Z"
+    },
+    {
+      "_id": "603d9f1f3f1c2b001f5a5bcc",
+      "first_name": "Dr. Emily",
+      "last_name": "Clark",
+      "specialization": "Pediatrician",
+      "email": "dr.emily.clark@email.com",
+      "phone_number": "+1 555 345 6789",
+      "office_address": {
+        "street": "123 Family Rd",
+        "city": "Vancouver",
+        "province": "BC",
+        "postal_code": "V7X 1B1"
+      },
+      "availability": [
+        {"day": "Monday", "hours": "10:00-14:00"},
+        {"day": "Thursday", "hours": "09:00-12:00"}
+      ],
+      "consultation_fee": 120,
+      "created_at": "2025-01-22T12:00:00Z",
+      "updated_at": "2025-02-20T14:00:00Z"
+    },
+    {
+      "_id": "603d9f1f3f1c2b001f5a5bcd",
+      "first_name": "Dr. Daniel",
+      "last_name": "Roberts",
+      "specialization": "Neurologist",
+      "email": "dr.daniel.roberts@email.com",
+      "phone_number": "+1 555 456 7890",
+      "office_address": {
+        "street": "567 Neuro Blvd",
+        "city": "Vancouver",
+        "province": "BC",
+        "postal_code": "V6P 2G3"
+      },
+      "availability": [
+        {"day": "Tuesday", "hours": "11:00-15:00"},
+        {"day": "Friday", "hours": "14:00-17:00"}
+      ],
+      "consultation_fee": 180,
+      "created_at": "2025-01-18T13:30:00Z",
+      "updated_at": "2025-02-22T10:30:00Z"
+    },
+    {
+      "_id": "603d9f1f3f1c2b001f5a5bce",
+      "first_name": "Dr. Olivia",
+      "last_name": "Miller",
+      "specialization": "Orthopedic Surgeon",
+      "email": "dr.olivia.miller@email.com",
+      "phone_number": "+1 555 567 8901",
+      "office_address": {
+        "street": "678 Bone St",
+        "city": "Vancouver",
+        "province": "BC",
+        "postal_code": "V7P 3R9"
+      },
+      "availability": [
+        {"day": "Monday", "hours": "08:00-12:00"},
+        {"day": "Wednesday", "hours": "13:00-17:00"}
+      ],
+      "consultation_fee": 200,
+      "created_at": "2025-01-30T14:00:00Z",
+      "updated_at": "2025-02-25T11:00:00Z"
+    },
+    {
+      "_id": "603d9f1f3f1c2b001f5a5bcf",
+      "first_name": "Dr. Thomas",
+      "last_name": "Young",
+      "specialization": "Dermatologist",
+      "email": "dr.thomas.young@email.com",
+      "phone_number": "+1 555 678 9012",
+      "office_address": {
+        "street": "789 Skin Ave",
+        "city": "Vancouver",
+        "province": "BC",
+        "postal_code": "V5T 4P1"
+      },
+      "availability": [
+        {"day": "Monday", "hours": "09:00-12:00"},
+        {"day": "Friday", "hours": "14:00-17:00"}
+      ],
+      "consultation_fee": 140,
+      "created_at": "2025-02-05T15:30:00Z",
+      "updated_at": "2025-02-20T12:30:00Z"
+    },
+    {
+      "_id": "603d9f1f3f1c2b001f5a5bd0",
+      "first_name": "Dr. Patricia",
+      "last_name": "Harris",
+      "specialization": "Psychiatrist",
+      "email": "dr.patricia.harris@email.com",
+      "phone_number": "+1 555 789 0123",
+      "office_address": {
+        "street": "123 Mind St",
+        "city": "Vancouver",
+        "province": "BC",
+        "postal_code": "V6P 1N3"
+      },
+      "availability": [
+        {"day": "Wednesday", "hours": "09:00-12:00"},
+        {"day": "Friday", "hours": "13:00-17:00"}
+      ],
+      "consultation_fee": 220,
+      "created_at": "2025-02-10T16:00:00Z",
+      "updated_at": "2025-02-22T09:30:00Z"
+    }
   ];
 
   @override
