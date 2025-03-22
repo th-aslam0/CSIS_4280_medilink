@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:group02_medilink/homepageDoctorList.dart';
 import 'package:group02_medilink/doctorDetail.dart';
 import 'package:group02_medilink/doctorInfo.dart';
 import 'package:group02_medilink/appointmentDetails.dart';
-import 'package:group02_medilink/appointmentDetails.dart';
+
 
 // void main() {
 //   runApp(MaterialApp(
@@ -12,7 +13,7 @@ import 'package:group02_medilink/appointmentDetails.dart';
 // }
 
 void main() {
-  runApp(const MyApp());
+  runApp(GetMaterialApp(home: Homepage()));
 }
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
