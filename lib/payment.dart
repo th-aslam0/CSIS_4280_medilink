@@ -17,7 +17,6 @@ class _PaymentState extends State<Payment> {
     Stripe.instance.applySettings();
   }
 
-  // Function to create a PaymentIntent directly with Stripe (NO BACKEND)
   Future<Map<String, dynamic>?> createPaymentIntent() async {
     try {
       final response = await http.post(
@@ -45,22 +44,21 @@ class _PaymentState extends State<Payment> {
 
   Future<void> makePayment() async {
     try {
-      // 1. Create PaymentIntent
+
       final paymentIntentData = await createPaymentIntent();
       if (paymentIntentData == null) {
         print("Failed to create PaymentIntent");
         return;
       }
 
-      // 2. Initialize the Payment Sheet
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: paymentIntentData['client_secret'],
-          merchantDisplayName: 'Your Business Name',
+          merchantDisplayName: 'CSIS',
         ),
       );
 
-      // 3. Show the Payment Sheet
+
       await Stripe.instance.presentPaymentSheet();
       Navigator.push(
         context,
