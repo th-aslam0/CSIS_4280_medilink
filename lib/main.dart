@@ -4,17 +4,25 @@ import 'package:group02_medilink/homepageDoctorList.dart';
 import 'package:group02_medilink/doctorDetail.dart';
 import 'package:group02_medilink/doctorInfo.dart';
 import 'package:group02_medilink/appointmentDetails.dart';
-
-
-// void main() {
-//   runApp(MaterialApp(
-//     home: AppointmentDetails(),
-//   ));
-// }
+import 'package:group02_medilink/payment.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 void main() {
-  runApp(GetMaterialApp(home: Homepage()));
+  runApp(MaterialApp(
+    home: AppointmentDetails(),
+  ));
 }
+
+//void main() {
+//  Stripe.publishableKey = "pk_test_51R9IrOIVC9q8XALuhPPx3FE1W1bseeXf0nbgHev5Nnb0zcIbaFPYZG3ijifvtamHgQaLLf9tuLZ28NifIKTzdilJ00dEx4QSd7";
+//  runApp(MaterialApp(
+//    home: Payment(),
+//  ));
+//}
+
+//void main() {
+//  runApp(GetMaterialApp(home: Homepage()));
+//}
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

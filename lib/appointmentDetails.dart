@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:group02_medilink/payment.dart';
 import 'package:intl/intl.dart';
 
 import 'bookingSuccessful.dart';
@@ -323,7 +324,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => BookingSuccessful()),
+                          MaterialPageRoute(builder: (context) => Payment()),
                         );
                       }
                     },
