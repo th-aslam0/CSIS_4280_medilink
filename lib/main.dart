@@ -5,15 +5,8 @@ import 'package:group02_medilink/doctorDetail.dart';
 import 'package:group02_medilink/doctorInfo.dart';
 import 'package:group02_medilink/appointmentDetails.dart';
 
-
-// void main() {
-//   runApp(MaterialApp(
-//     home: AppointmentDetails(),
-//   ));
-// }
-
 void main() {
-  runApp(GetMaterialApp(home: Homepage()));
+  runApp(GetMaterialApp(home: AppointmentDetails()));
 }
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

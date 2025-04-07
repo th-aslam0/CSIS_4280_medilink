@@ -29,6 +29,13 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     super.dispose();
   }
 
+  final List<Map<String, dynamic>> bookedAppointments = [
+    {
+      "name": "Dr. James Taylor",
+      "date": "2025-04-28T16:00:00Z",
+      "time": "09:00-12:00"
+    }
+  ];
   final Map<String, List<String>> typeToSpecialization = {
     "General Consultation": ["General Practitioner"],
     "Cardiology Checkup": ["Cardiologist"],
@@ -90,14 +97,43 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     String weekday = DateFormat('EEEE').format(date);
     var doctorData = doctors.firstWhere((doc) => doc["name"] == doctor, orElse: () => {});
     if (doctorData.isEmpty || !doctorData["availability"].containsKey(weekday)) return [];
-    return doctorData["availability"][weekday].split('-');
+
+    //implement disable if booked
+    String availableTime = doctorData["availability"][weekday];
+    bool isBooked = bookedAppointments.any((appointment) =>
+      appointment['name'] == doctor
+          && DateTime.parse(appointment['date']).toLocal().day == date.day
+          && DateTime.parse(appointment['date']).toLocal().month == date.month
+          && DateTime.parse(appointment['date']).toLocal().year == date.year
+          && appointment['time'] == availableTime
+    );
+    print("Appointment booked: $isBooked");
+    //return [doctorData["availability"][weekday]];
+    return isBooked ? [] : [availableTime];
   }
 
-  bool isDateAvailable(DateTime date) {
-    if (_selectedDoctor == null) return false;
+  bool isDateAvailable(String doctor, DateTime date) {
+    //check days doctor work
     String weekday = DateFormat('EEEE').format(date);
-    var doctorData = doctors.firstWhere((doc) => doc["name"] == _selectedDoctor, orElse: () => {});
-    return doctorData.isNotEmpty && doctorData["availability"].containsKey(weekday);
+    var doctorData = doctors.firstWhere((doc) => doc["name"] == doctor, orElse: () => {});
+    if (doctorData.isEmpty || !doctorData["availability"].containsKey(weekday)) {
+      return false;
+    }
+
+    String availableTime = doctorData["availability"][weekday];
+
+    //check if time is booked
+    bool isBooked = bookedAppointments.any((appointment) {
+      DateTime appointmentDate = DateTime.parse(appointment['date']).toLocal();
+      bool isMatch = appointment['name'] == doctor
+          && appointmentDate.day == date.day
+          && appointmentDate.month == date.month
+          && appointmentDate.year == date.year
+          && appointment['time'] == availableTime;
+
+      return isMatch;
+    });
+    return !isBooked;
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -111,7 +147,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
       lastDate: DateTime(2030),
 
       //disable unavailable date
-      selectableDayPredicate: (date) => isDateAvailable(date),
+      selectableDayPredicate: (date) => isDateAvailable(_selectedDoctor!,date),
     );
 
     if (pickedDate != null) {
@@ -150,190 +186,183 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
         backgroundColor: Colors.blue,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Search or Asks AI',
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide(color: Colors.blue),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Search or Asks AI',
+                              prefixIcon: Icon(Icons.search),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide(color: Colors.blue),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.account_circle),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.menu),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-
-                  // appointment type
-                  DropdownButtonFormField(
-                    decoration: InputDecoration(labelText: "Appointment Type"),
-                    value: _selectedType,
-                    items: typeToSpecialization.keys.map((type) {
-                      return DropdownMenuItem(value: type, child: Text(type));
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedType = value as String?;
-                        _selectedDoctor = null;
-                        _selectedDate = null;
-                        _selectedTime = null;
-                      });
-                    },
-                    validator: (value) => value == null ? 'Please select an appointment type' : null,
-                  ),
-
-                  // doctor select
-                  DropdownButtonFormField(
-                    decoration: InputDecoration(labelText: "Select Doctor"),
-                    value: _selectedDoctor,
-                    items: getAvailableDoctors()
-                        .map((doc) => DropdownMenuItem(value: doc, child: Text(doc)))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedDoctor = value as String?;
-                        _selectedDate = null;
-                        _selectedTime = null;
-                      });
-                    },
-                    validator: (value) => value == null ? 'Please select a doctor' : null,
-                    disabledHint: Text("Select a appointment type first"),
-                  ),
-
-                  // date pciker
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: "Select Date",
-                      hintText: _selectedDate == null ? "Please select a doctor first" : "",
+                        IconButton(
+                          icon: Icon(Icons.account_circle),
+                          onPressed: () {},
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.menu),
+                          onPressed: () {},
+                        ),
+                      ],
                     ),
-                    readOnly: true,
-                    onTap: _selectedDoctor != null
-                        ? () async {
-                      DateTime now = DateTime.now();
-                      DateTime? nearestAvailableDate = getNearestAvailableDate(_selectedDoctor!, now);
+                    SizedBox(height: 16),
 
-                      if (nearestAvailableDate == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("No available dates for this doctor!")),
-                        );
-                        return;
-                      }
-
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: nearestAvailableDate,
-                        firstDate: now,
-                        lastDate: DateTime(2030),
-                        selectableDayPredicate: (DateTime day) {
-                          String weekday = DateFormat('EEEE').format(day);
-                          var doctorData = doctors.firstWhere(
-                                  (doc) => doc["name"] == _selectedDoctor,
-                              orElse: () => {});
-
-                          return doctorData.isNotEmpty && doctorData["availability"].containsKey(weekday);
-                        },
-                      );
-
-                      if (pickedDate != null) {
+                    // appointment type
+                    DropdownButtonFormField(
+                      decoration: InputDecoration(labelText: "Appointment Type"),
+                      value: _selectedType,
+                      items: typeToSpecialization.keys.map((type) {
+                        return DropdownMenuItem(value: type, child: Text(type));
+                      }).toList(),
+                      onChanged: (value) {
                         setState(() {
-                          _selectedDate = pickedDate;
-                          _selectedTime = null;
-                        });
-                      }
-                    }
-                    //no doctor select
-                        : null,
-                    controller: TextEditingController(
-                      text: _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '',
-                    ),
-                    validator: (value) => value == null || value.isEmpty ? 'Please select a date' : null,
-                  ),
-
-                  // time select
-                  DropdownButtonFormField(
-                    decoration: InputDecoration(labelText: "Available Time"),
-                    value: _selectedTime,
-                    items: (_selectedDoctor != null && _selectedDate != null
-                        ? getAvailableTimes(_selectedDoctor!, _selectedDate!)
-                        : [])
-                        .map((time) => DropdownMenuItem(value: time, child: Text(time)))
-                        .toList(),
-                    onChanged: (_selectedDoctor != null && _selectedDate != null)
-                        ? (value) => setState(() => _selectedTime = value as String?)
-                        : null,
-                    validator: (value) => value == null ? 'Please select a time slot' : null,
-                    disabledHint: Text("Select a date first"),
-                  ),
-
-                  // problem desc
-                  TextFormField(
-                    controller: _problemDescriptionController,
-                    decoration: InputDecoration(labelText: "Problem Description"),
-                    maxLines: 3,
-                    onChanged: (value) => _problemDescription = value,
-                  ),
-
-                  SizedBox(height: 50),
-
-                  // submit
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        print("Appointment Type: $_selectedType");
-                        print("Doctor: $_selectedDoctor");
-                        print("Date: ${_selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : 'Not selected'}");
-                        print("Time: $_selectedTime");
-                        print("Problem Description: ${_problemDescription ?? 'Not provided'}");
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Thank you for booking!"),
-                          ),
-                        );
-
-                        // clear form
-                        setState(() {
-                          _selectedType = null;
+                          _selectedType = value as String?;
                           _selectedDoctor = null;
                           _selectedDate = null;
                           _selectedTime = null;
-                          _problemDescription = null;
-                          _problemDescriptionController.clear();
                         });
+                      },
+                      validator: (value) => value == null ? 'Please select an appointment type' : null,
+                    ),
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => BookingSuccessful()),
+                    // doctor select
+                    DropdownButtonFormField(
+                      decoration: InputDecoration(labelText: "Select Doctor"),
+                      value: _selectedDoctor,
+                      items: getAvailableDoctors()
+                          .map((doc) => DropdownMenuItem(value: doc, child: Text(doc)))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedDoctor = value as String?;
+                          _selectedDate = null;
+                          _selectedTime = null;
+                        });
+                      },
+                      validator: (value) => value == null ? 'Please select a doctor' : null,
+                      disabledHint: Text("Select a appointment type first"),
+                    ),
+
+                    // date pciker
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "Select Date",
+                        hintText: _selectedDate == null ? "Please select a doctor first" : "",
+                      ),
+                      readOnly: true,
+                      onTap: _selectedDoctor != null
+                          ? () async {
+                        DateTime now = DateTime.now();
+                        DateTime? nearestAvailableDate = getNearestAvailableDate(_selectedDoctor!, now);
+
+                        if (nearestAvailableDate == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("No available date for this doctor!")),
+                          );
+                          return;
+                        }
+
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: nearestAvailableDate,
+                          firstDate: now,
+                          lastDate: DateTime(2030),
+                          selectableDayPredicate: (DateTime day) => isDateAvailable(_selectedDoctor!, day),
                         );
+
+                        if (pickedDate != null) {
+                          setState(() {
+                            _selectedDate = pickedDate;
+                            _selectedTime = null;
+                          });
+                        }
                       }
-                    },
-                    child: Text("Book Appointment"),
-                  ),
-                ],
+                      //no doctor select
+                          : null,
+                      controller: TextEditingController(
+                        text: _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '',
+                      ),
+                      validator: (value) => value == null || value.isEmpty ? 'Please select a date' : null,
+                    ),
+
+                    // time select
+                    DropdownButtonFormField(
+                      decoration: InputDecoration(labelText: "Available Time"),
+                      value: _selectedTime,
+                      items: (_selectedDoctor != null && _selectedDate != null
+                          ? getAvailableTimes(_selectedDoctor!, _selectedDate!)
+                          : [])
+                          .map((time) => DropdownMenuItem(value: time, child: Text(time)))
+                          .toList(),
+                      onChanged: (_selectedDoctor != null && _selectedDate != null)
+                          ? (value) => setState(() => _selectedTime = value as String?)
+                          : null,
+                      validator: (value) => value == null ? 'Please select a time slot' : null,
+                      disabledHint: Text("Select a date first"),
+                    ),
+
+                    // problem desc
+                    TextFormField(
+                      controller: _problemDescriptionController,
+                      decoration: InputDecoration(labelText: "Problem Description"),
+                      maxLines: 3,
+                      onChanged: (value) => _problemDescription = value,
+                    ),
+
+                    SizedBox(height: 50),
+
+                    // submit
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          print("Appointment Type: $_selectedType");
+                          print("Doctor: $_selectedDoctor");
+                          print("Date: ${_selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : 'Not selected'}");
+                          print("Time: $_selectedTime");
+                          print("Problem Description: ${_problemDescription ?? 'Not provided'}");
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Thank you for booking!"),
+                            ),
+                          );
+
+                          // clear form
+                          setState(() {
+                            _selectedType = null;
+                            _selectedDoctor = null;
+                            _selectedDate = null;
+                            _selectedTime = null;
+                            _problemDescription = null;
+                            _problemDescriptionController.clear();
+                          });
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => BookingSuccessful()),
+                          );
+                        }
+                      },
+                      child: Text("Book Appointment"),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        )
+            ],
+          )
       ),
     );
   }
