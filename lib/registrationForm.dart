@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:group02_medilink/bookingSuccessful.dart';
+import 'package:group02_medilink/registerSuccessful.dart';
 
 class RegistrationPage extends StatefulWidget {
   @override
@@ -22,11 +24,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
               children: [
                 _buildTextField('First Name'),
                 _buildTextField('Last Name'),
-                _buildTextField('Email', keyboardType: TextInputType.emailAddress),
+                _buildTextField('Email',
+                    keyboardType: TextInputType.emailAddress),
                 _buildTextField('Home Address'),
-                _buildTextField('Date of Birth', keyboardType: TextInputType.datetime),
-                _buildTextField('Phone Number', keyboardType: TextInputType.phone),
-                _buildDropdownField('Marital Status', ['Single', 'Married', 'Divorced', 'Widowed']),
+                _buildTextField('Date of Birth',
+                    keyboardType: TextInputType.datetime),
+                _buildTextField('Phone Number',
+                    keyboardType: TextInputType.phone),
+                _buildDropdownField('Marital Status',
+                    ['Single', 'Married', 'Divorced', 'Widowed']),
                 _buildDropdownField('Gender', ['Male', 'Female', 'Other']),
                 _buildTextField('Password', obscureText: true),
                 _buildTextField('Confirm Password', obscureText: true),
@@ -54,8 +60,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        if (_formKey.currentState!.validate() && _agreeToTerms) {
+                        if (_formKey.currentState!.validate() &&
+                            _agreeToTerms) {
                           // Handle form submission
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RegisterSuccessful(),
+                              ));
                         }
                       },
                       child: Text('Sign Up'),
@@ -70,7 +82,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 
-  Widget _buildTextField(String label, {bool obscureText = false, TextInputType keyboardType = TextInputType.text}) {
+  Widget _buildTextField(String label,
+      {bool obscureText = false,
+      TextInputType keyboardType = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
@@ -110,7 +124,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
             selectedValue = newValue;
           });
         },
-        validator: (value) => value == null ? 'Please select your $label' : null,
+        validator: (value) =>
+            value == null ? 'Please select your $label' : null,
       ),
     );
   }
