@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:group02_medilink/appointmentDetails.dart';
+import 'package:group02_medilink/controller/doctorController.dart';
 import 'package:group02_medilink/dataLists.dart';
 import 'package:group02_medilink/doctorDetail.dart';
 import 'package:group02_medilink/doctorInfo.dart';
@@ -46,6 +49,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final List<Map<String, dynamic>> _doctors = new DoctorList().data;
   final List<Map<String, dynamic>> _services = new ServiceList().data;
+
+  final DoctorController _doctorController = Get.put(DoctorController());
 
   void _bookDoctorAppointment() {}
 
@@ -126,14 +131,14 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
-          Container(
+          Obx(()=>Container(
               margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
               height: 160,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: _services.length,
+                itemCount: _doctorController.services.length,
                 itemBuilder: (context, index) {
-                  final service = _services[index];
+                  final service = _doctorController.services[index];
                   return Container(
                     width: 185,
                     margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -172,7 +177,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   );
                 },
-              )),
+              ))
+          ),
           Container(
             padding: EdgeInsets.fromLTRB(8, 20, 0, 0),
             alignment: Alignment.centerLeft,
@@ -181,14 +187,14 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
-          Container(
+          Obx(() =>Container(
               margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
               height: 220,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: _doctors.length,
+                itemCount: _doctorController.doctorList.length,
                 itemBuilder: (context, index) {
-                  final doctor = _doctors[index];
+                  final doctor = _doctorController.doctorList[index];
                   return Container(
                     width: 185,
                     margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -265,7 +271,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   );
                 },
-              )),
+              ))
+          ),
         ],
       )),
     );
