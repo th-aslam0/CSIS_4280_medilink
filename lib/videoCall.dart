@@ -4,7 +4,7 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 
 const String appId = "94ec467231d749f080f1360cf5a7ec72";
 const String channelName = "test_channel";
-const String token = "007eJxTYFgU98vTsDNil62jW8naq1kyl36yfrq7ee1j9Wk3z5ZKbwhSYLA0SU02MTM3MjZMMTexTDOwMEgzNDYzSE4zTTRPTTY3ijb9kN4QyMiwosSRgREKQXwehpLU4pL45IzEvLzUHAYGAMGnI8A=";
+const String token = "007eJxTYOh9WPomdc/KqfU7n5vXGl6zlbAo/aAxw+yA/s+Wbx8eyMYoMFiapCabmJkbGRummJtYphlYGKQZGpsZJKeZJpqnJpsb6Wz9kt4QyMhQNmknAyMUgvg8DCWpxSXxyRmJeXmpOQwMABOkJO4=";
 
 void main() {
   runApp(const MaterialApp(home: VideoCall()));
@@ -67,6 +67,7 @@ class _VideoCallState extends State<VideoCall> {
     await _engine.joinChannel(
       token: token,
       channelId: channelName,
+      //wait for be
       uid: 0,
       options: const ChannelMediaOptions(),
     );
@@ -116,7 +117,8 @@ class _VideoCallState extends State<VideoCall> {
                     controller: VideoViewController(
                       rtcEngine: _engine,
                       canvas: VideoCanvas(
-                        uid: _localUid!,
+                        //uid: _localUid!,
+                        uid: 0,
                         renderMode: RenderModeType.renderModeHidden,
                       ),
                     ),
@@ -130,7 +132,7 @@ class _VideoCallState extends State<VideoCall> {
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: _isJoined ? leaveChannel : initAgora,
-              child: Text(_isJoined ? "Leave Call" : "Join Call"),
+              child: Text(_isJoined ? "Leave call" : "Join call"),
             ),
           ),
         ],
