@@ -9,7 +9,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 
 void main() {
   runApp(MaterialApp(
-    home: AppointmentDetails(),
+    home: Payment(),
   ));
 }
 
