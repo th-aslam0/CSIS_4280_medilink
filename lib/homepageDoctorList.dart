@@ -47,8 +47,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Map<String, dynamic>> _doctors = new DoctorList().data;
-  final List<Map<String, dynamic>> _services = new ServiceList().data;
 
   final DoctorController _doctorController = Get.put(DoctorController());
 
@@ -210,23 +208,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            Map<String, dynamic> doctorData = _doctors[index];
-                            Doctor doctor = Doctor(
-                                '33782916e2329fj3',
-                                doctorData['first_name'],
-                                doctorData['last_name'],
-                                doctorData['specialization'],
-                                doctorData['email'],
-                                doctorData['phone_number'],
-                                doctorData['office_address'],
-                                doctorData['availability'],
-                                doctorData['consultation_fee'],
-                                doctorData['created_at'],
-                                doctorData['updated_at']);
+                            final String doctorId = doctor["id"];
+
                             Navigator.pushNamed(
                               context,
                               '/doctorPage',
-                              arguments: doctor,
+                              arguments: doctorId,
                             );
                           },
                           child: Column(
@@ -241,7 +228,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                doctor['first_name'],
+                                doctor['firstName'],
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16),
                                 textAlign: TextAlign.center,
