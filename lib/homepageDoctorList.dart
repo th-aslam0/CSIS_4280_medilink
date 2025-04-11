@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:group02_medilink/appointmentDetails.dart';
+import 'package:group02_medilink/controller/appointmentController.dart';
 import 'package:group02_medilink/controller/doctorController.dart';
 import 'package:group02_medilink/dataLists.dart';
 import 'package:group02_medilink/doctorDetail.dart';
@@ -49,6 +50,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   final DoctorController _doctorController = Get.put(DoctorController());
+  final AppointmentController _appointmentController = Get.put(AppointmentController());
 
   void _bookDoctorAppointment() {}
 
