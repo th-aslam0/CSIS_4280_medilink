@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:group02_medilink/controller/appointmentController.dart';
 
 import 'appointmentDetails.dart';
 import 'manageAppointments.dart';
 
 class BookingSuccessful extends StatelessWidget {
+
+  final AppointmentController appointmentController = Get.find();
   @override
   Widget build(BuildContext context) {
+    final String patientId = appointmentController.patientId.value;
     return Scaffold(
       appBar: AppBar(
         title: Text("Booking Successful"),
@@ -55,6 +61,7 @@ class BookingSuccessful extends StatelessWidget {
                   textStyle: TextStyle(fontSize: 16),
                 ),
                 onPressed: () {
+                  appointmentController.fetchAppointmentByPatientId(patientId);
                   Navigator.push(
                     context,
                     MaterialPageRoute(

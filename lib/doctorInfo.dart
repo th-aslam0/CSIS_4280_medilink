@@ -8,8 +8,8 @@ class Doctor {
   final Map<String, String> officeAddress;
   final List<Map<String, String>> availability;
   final int consultationFee;
-  final String createdAt;
-  final String updatedAt;
+  // final String createdAt;
+  // final String updatedAt;
 
   Doctor(
     this.id,
@@ -21,7 +21,7 @@ class Doctor {
     this.officeAddress,
     this.availability,
     this.consultationFee,
-    this.createdAt,
-    this.updatedAt,
+    // this.createdAt,
+    // this.updatedAt,
   );
 }

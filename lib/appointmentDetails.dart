@@ -1,5 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:group02_medilink/controller/doctorController.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:developer' as dev;
 
 import 'bookingSuccessful.dart';
 
@@ -23,6 +30,8 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   String? _problemDescription;
   TextEditingController _problemDescriptionController = TextEditingController();
 
+  final DoctorController _doctorController = Get.find();
+
   @override
   void dispose() {
     _problemDescriptionController.dispose();
@@ -39,66 +48,57 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     "Psychiatric Assessment": ["Psychiatrist"]
   };
 
-  final List<Map<String, dynamic>> doctors = [
-    {
-      "name": "Dr. James Taylor",
-      "specialization": "General Practitioner",
-      "availability": {"Monday": "09:00-12:00", "Wednesday": "14:00-18:00"}
-    },
-    {
-      "name": "Dr. Sarah Lee",
-      "specialization": "Cardiologist",
-      "availability": {"Tuesday": "10:00-13:00", "Thursday": "15:00-18:00"}
-    },
-    {
-      "name": "Dr. Emily Clark",
-      "specialization": "Pediatrician",
-      "availability": {"Monday": "10:00-14:00", "Thursday": "09:00-12:00"}
-    },
-    {
-      "name": "Dr. Daniel Roberts",
-      "specialization": "Neurologist",
-      "availability": {"Tuesday": "11:00-15:00", "Friday": "14:00-17:00"}
-    },
-    {
-      "name": "Dr. Olivia Miller",
-      "specialization": "Orthopedic Surgeon",
-      "availability": {"Monday": "08:00-12:00", "Wednesday": "13:00-17:00"}
-    },
-    {
-      "name": "Dr. Thomas Young",
-      "specialization": "Dermatologist",
-      "availability": {"Monday": "09:00-12:00", "Friday": "14:00-17:00"}
-    },
-    {
-      "name": "Dr. Patricia Harris",
-      "specialization": "Psychiatrist",
-      "availability": {"Wednesday": "09:00-12:00", "Friday": "13:00-17:00"}
-    }
-  ];
 
   List<String> getAvailableDoctors() {
     if (_selectedType == null) return [];
     List<String> matchingSpecializations = typeToSpecialization[_selectedType!] ?? [];
-    return doctors
+    return _doctorController.doctorList
         .where((doc) => matchingSpecializations.contains(doc["specialization"]))
-        .map((doc) => doc["name"] as String)
+        .map((doc) => doc["firstName"] as String)
         .toList();
   }
 
+
+
+  //new version based on real Doctor model
   List<String> getAvailableTimes(String doctor, DateTime date) {
     String weekday = DateFormat('EEEE').format(date);
-    var doctorData = doctors.firstWhere((doc) => doc["name"] == doctor, orElse: () => {});
-    if (doctorData.isEmpty || !doctorData["availability"].containsKey(weekday)) return [];
-    return doctorData["availability"][weekday].split('-');
+    var doctorData = _doctorController.doctorList.firstWhere(
+          (doc) => doc["firstName"] == doctor,
+      orElse: () => {},
+    );
+
+    if (doctorData.isEmpty || doctorData["availability"] == null) return [];
+
+    // Find matching availability object by day
+    var availabilityForDay = doctorData["availability"].firstWhere(
+          (slot) => slot["day"] == weekday,
+      orElse: () => null,
+    );
+
+    if (availabilityForDay == null || availabilityForDay["hours"] == null) return [];
+
+    return availabilityForDay["hours"].split('-');
   }
 
+
+  //new version based on real Doctor model
   bool isDateAvailable(DateTime date) {
     if (_selectedDoctor == null) return false;
+
     String weekday = DateFormat('EEEE').format(date);
-    var doctorData = doctors.firstWhere((doc) => doc["name"] == _selectedDoctor, orElse: () => {});
-    return doctorData.isNotEmpty && doctorData["availability"].containsKey(weekday);
+
+    var doctorData = _doctorController.doctorList.firstWhere(
+          (doc) => doc["firstName"] == _selectedDoctor,
+      orElse: () => {},
+    );
+
+    if (doctorData.isEmpty || doctorData["availability"] == null) return false;
+
+    // Check if any availability slot matches the weekday
+    return doctorData["availability"].any((slot) => slot["day"] == weekday);
   }
+
 
   Future<void> _selectDate(BuildContext context) async {
     //disable before select doctor
@@ -122,25 +122,58 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     }
   }
 
-  //check nearest available day to prevent datepicker error
+  //new version based on real Doctor model
   DateTime? getNearestAvailableDate(String doctor, DateTime fromDate) {
-    var doctorData = doctors.firstWhere(
-            (doc) => doc["name"] == doctor,
-        orElse: () => {});
+    var doctorData = _doctorController.doctorList.firstWhere(
+          (doc) => doc["firstName"] == doctor,
+      orElse: () => {},
+    );
 
-    if (doctorData.isEmpty) return null;
+    if (doctorData.isEmpty || doctorData["availability"] == null) return null;
 
     for (int i = 0; i < 30; i++) {
       DateTime checkDate = fromDate.add(Duration(days: i));
       String weekday = DateFormat('EEEE').format(checkDate);
 
-      if (doctorData["availability"].containsKey(weekday)) {
+      // Check if this day is in the availability list
+      bool isAvailable = doctorData["availability"]
+          .any((slot) => slot["day"] == weekday);
+
+      if (isAvailable) {
         return checkDate;
       }
     }
-    // no date found
+
+    // No available date found within 30 days
     return null;
   }
+
+  Future<bool> addAppointment(Map<String,dynamic> requestBody) async{
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.1.157:8080/api/appointments'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if(response.statusCode == 200 || response.statusCode == 201) {
+
+        return true;
+      }
+      else {
+        dev.log('Error: ${response.statusCode}');
+
+        return false;
+      }
+    } catch (e) {
+      dev.log('Error: $e');
+      return false;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +253,6 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                     disabledHint: Text("Select a appointment type first"),
                   ),
 
-                  // date pciker
                   TextFormField(
                     decoration: InputDecoration(
                       labelText: "Select Date",
@@ -246,11 +278,15 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                         lastDate: DateTime(2030),
                         selectableDayPredicate: (DateTime day) {
                           String weekday = DateFormat('EEEE').format(day);
-                          var doctorData = doctors.firstWhere(
-                                  (doc) => doc["name"] == _selectedDoctor,
-                              orElse: () => {});
+                          var doctorData = _doctorController.doctorList.firstWhere(
+                                (doc) => doc["firstName"] == _selectedDoctor,
+                            orElse: () => {},
+                          );
 
-                          return doctorData.isNotEmpty && doctorData["availability"].containsKey(weekday);
+                          if (doctorData.isEmpty || doctorData["availability"] == null) return false;
+
+                          return doctorData["availability"]
+                              .any((slot) => slot["day"] == weekday);
                         },
                       );
 
@@ -261,13 +297,14 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                         });
                       }
                     }
-                    //no doctor select
                         : null,
                     controller: TextEditingController(
                       text: _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '',
                     ),
-                    validator: (value) => value == null || value.isEmpty ? 'Please select a date' : null,
+                    validator: (value) =>
+                    value == null || value.isEmpty ? 'Please select a date' : null,
                   ),
+
 
                   // time select
                   DropdownButtonFormField(
@@ -297,7 +334,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 
                   // submit
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         print("Appointment Type: $_selectedType");
                         print("Doctor: $_selectedDoctor");
@@ -311,20 +348,56 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                           ),
                         );
 
-                        // clear form
-                        setState(() {
-                          _selectedType = null;
-                          _selectedDoctor = null;
-                          _selectedDate = null;
-                          _selectedTime = null;
-                          _problemDescription = null;
-                          _problemDescriptionController.clear();
-                        });
+                        //Hardcode patient Id
+                        final String _patientId = "67f368ba18e7ac37286aa89e";
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => BookingSuccessful()),
+                        var doctorData = _doctorController.doctorList.firstWhere(
+                              (doc) => doc["firstName"] == _selectedDoctor,
+                          orElse: () => {},
                         );
+
+
+                        // Combine into a single string that can be parsed
+                        String dateTimeString = "${DateFormat('yyyy-MM-dd').format(_selectedDate!)} $_selectedTime";
+
+                        // Parse to DateTime object
+                        DateTime dateTime = DateFormat("yyyy-MM-dd HH:mm").parse(dateTimeString);
+                        // Format to desired output
+                        String formattedDateTime = DateFormat("yyyy-MM-dd-HH-mm-ss").format(dateTime);
+
+
+                        //build requestBody
+                        final Map<String,dynamic> requestBody = {
+                          "patientId": _patientId,
+                          "doctorId": doctorData["id"],
+                          "date": formattedDateTime,
+                          "patientDesc": _problemDescription,
+                          "status": "Pending",
+                          "fee": doctorData["consultationFee"],
+                          "prescription": "Pending",
+                          "specialization": doctorData["specialization"]
+                        };
+
+                        if(await addAppointment(requestBody)){
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(content: Text('Successfully booked')));
+                          // clear form
+                          setState(() {
+                            _selectedType = null;
+                            _selectedDoctor = null;
+                            _selectedDate = null;
+                            _selectedTime = null;
+                            _problemDescription = null;
+                            _problemDescriptionController.clear();
+                          });
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => BookingSuccessful()),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(content: Text('Failed booking appointment')));
+                        }
                       }
                     },
                     child: Text("Book Appointment"),
