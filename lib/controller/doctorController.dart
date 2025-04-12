@@ -5,7 +5,8 @@ import 'package:http/http.dart' as http;
 class DoctorController extends GetxController {
   var doctorList = <Map<String,dynamic>>[].obs;
   var singleDoctor = Rxn<Map<String, dynamic>>();
-
+  //var ipAddress = '192.168.1.157';
+  var ipAddress = '10.0.2.2';
   var services = <Map<String,dynamic>>[
     { "service_name": "General Consultation", "specialization": "General Practitioner" },
     { "service_name": "Pediatric Consultation", "specialization": "Pediatrician" },
@@ -39,14 +40,13 @@ class DoctorController extends GetxController {
   Future<void> fetchDoctor() async {
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.157:8080/api/doctors'),
+      Uri.parse('http://${ipAddress}:8080/api/doctors'),
     );
 
     if (response.statusCode == 200) {
       List<dynamic> responseArray = jsonDecode(response.body);
 
       doctorList.value = responseArray.map((item)=>item as Map<String, dynamic>).toList();
-
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
@@ -57,7 +57,8 @@ class DoctorController extends GetxController {
   Future<void> fetchDoctorById(String id) async {
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.157:8080/api/doctors/$id'),
+      Uri.parse('http://${ipAddress}:8080/api/doctors/$id'),
+      //Uri.parse('http://192.168.1.157:8080/api/doctors/$id'),
     );
 
     if (response.statusCode == 200) {

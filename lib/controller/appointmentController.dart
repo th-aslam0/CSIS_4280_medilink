@@ -9,7 +9,8 @@ class AppointmentController extends GetxController {
   var singleAppointment = Rxn<Map<String, dynamic>>();
   var appointmentByPatientList = <Map<String,dynamic>>[].obs;
   var patientId = "67f368ba18e7ac37286aa89e".obs;
-
+  //var ipAddress = '192.168.1.157';
+  var ipAddress = '10.0.2.2';
 
   @override
   void onInit() {
@@ -21,7 +22,7 @@ class AppointmentController extends GetxController {
   Future<void> fetchAppointment() async {
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.157:8080/api/appointments'),
+      Uri.parse('http://${ipAddress}:8080/api/appointments'),
     );
 
     if (response.statusCode == 200) {
@@ -39,7 +40,7 @@ class AppointmentController extends GetxController {
   Future<void> fetchAppointmentById(String id) async {
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.157:8080/api/appointments/$id'),
+      Uri.parse('http://${ipAddress}:8080/api/appointments/$id'),
     );
 
     if (response.statusCode == 200) {
@@ -55,7 +56,7 @@ class AppointmentController extends GetxController {
   Future<void> fetchAppointmentByPatientId(String id) async {
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.157:8080/api/appointments/patient/$id'),
+      Uri.parse('http://${ipAddress}:8080/api/appointments/patient/$id'),
     );
 
     if (response.statusCode == 200) {
@@ -75,7 +76,7 @@ class AppointmentController extends GetxController {
     developer.log("device clicked id: $id");
 
     final http.Response response = await http.delete(
-      Uri.parse('http://192.168.1.157:8080/api/appointments/$id'),
+      Uri.parse('http://${ipAddress}:8080/api/appointments/$id'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
