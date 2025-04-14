@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:group02_medilink/controller/patientController.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:group02_medilink/bookingSuccessful.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class Payment extends StatefulWidget {
+
   final Map<String, dynamic> requestBody;
 
   const Payment(this.requestBody, {Key? key}) : super(key: key);
@@ -14,6 +17,8 @@ class Payment extends StatefulWidget {
 }
 
 class _PaymentState extends State<Payment> {
+  final PatientController patientController = Get.put(PatientController());
+
   @override
   void initState() {
     super.initState();
@@ -122,33 +127,77 @@ class _PaymentState extends State<Payment> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('Contact Info',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),),
-              SizedBox(height: 8),
-              Text('Name'),
-              Text('Tol'),
-              Text('Email'),
-              SizedBox(height: 24),
-              Text('Appointment Summary',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),),
-              SizedBox(height: 8),
-              Text('General Practitioner:         10.00'),
-              SizedBox(height: 24),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await makePayment();
-                  },
-                  child: Text("Checkout"),
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
                 ),
-              )
-
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Contact Info Section
+                    Text(
+                      'Contact Info',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Text('Name: ${patientController.name}',
+                        style: TextStyle(fontSize: 15)),
+                    SizedBox(height: 4),
+                    Text('Address: ${patientController.address}',
+                        style: TextStyle(fontSize: 15)),
+                    SizedBox(height: 4),
+                    Text('Email: ${patientController.email}',
+                        style: TextStyle(fontSize: 15)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Divider(height: 1, thickness: 1, color: Colors.grey.withOpacity(0.2)),
+                    ),
+                    Text(
+                      'Appointment Summary',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('General Practitioner', style: TextStyle(fontSize: 15)),
+                        Text('\$10.00',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue[700],
+                            )),
+                      ],
+                    ),
+                    SizedBox(height: 24),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await makePayment();
+                        },
+                        child: Text("Checkout"),
+                      ),
+                    )
+                  ],
+                ),
+              ),
             ],
           ),
         )

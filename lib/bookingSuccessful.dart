@@ -58,7 +58,6 @@ class BookingSuccessful extends StatelessWidget {
 
               SizedBox(height: 30),
 
-              // manage appontments button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
