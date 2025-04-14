@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:group02_medilink/controller/doctorController.dart';
+import 'package:group02_medilink/controller/appointmentController.dart';
+import 'package:group02_medilink/payment.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as dev;
@@ -31,6 +33,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   TextEditingController _problemDescriptionController = TextEditingController();
 
   final DoctorController _doctorController = Get.find();
+  final AppointmentController appointmentController = Get.find();
 
   @override
   void dispose() {
@@ -48,6 +51,18 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     "Psychiatric Assessment": ["Psychiatrist"]
   };
 
+  List<double> getHourChoices(String range) {
+    List<String> parts = range.split('-');
+    double start = double.parse(parts[0]);
+    double end = double.parse(parts[1]);
+
+    List<double> choices = [];
+    for (double hour = start; hour < end; hour++) {
+      choices.add(hour);
+    }
+
+    return choices;
+  }
 
   List<String> getAvailableDoctors() {
     if (_selectedType == null) return [];
@@ -63,6 +78,8 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   //new version based on real Doctor model
   List<String> getAvailableTimes(String doctor, DateTime date) {
     String weekday = DateFormat('EEEE').format(date);
+    String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
     var doctorData = _doctorController.doctorList.firstWhere(
           (doc) => doc["firstName"] == doctor,
       orElse: () => {},
@@ -70,7 +87,6 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 
     if (doctorData.isEmpty || doctorData["availability"] == null) return [];
 
-    // Find matching availability object by day
     var availabilityForDay = doctorData["availability"].firstWhere(
           (slot) => slot["day"] == weekday,
       orElse: () => null,
@@ -78,7 +94,51 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 
     if (availabilityForDay == null || availabilityForDay["hours"] == null) return [];
 
-    return availabilityForDay["hours"].split('-');
+    var hours = availabilityForDay["hours"].split('-');
+
+    DateTime startTime = DateFormat("HH:mm").parse(hours[0]);
+    DateTime endTime = DateFormat("HH:mm").parse(hours[1]);
+
+    List<String> timeSlots = [];
+    while (startTime.isBefore(endTime)) {
+      timeSlots.add(DateFormat("HH:mm").format(startTime));
+      startTime = startTime.add(Duration(hours: 1));
+    }
+
+    // Filter out already booked appointments
+    List<String> availableTimeSlots = filterBookedTimeSlots(
+        timeSlots,
+        doctorData["id"],
+        formattedDate
+    );
+
+    return availableTimeSlots;
+  }
+
+  List<String> filterBookedTimeSlots(List<String> allTimeSlots, String doctorId, String date) {
+    List<Map<String, dynamic>> bookedAppointments = appointmentController.appointmentList
+        .where((appointment) {
+      String appointmentDateStr = appointment["date"];
+      List<String> parts = appointmentDateStr.split('-');
+      if (parts.length >= 3) {
+        String appointmentDate = "${parts[0]}-${parts[1]}-${parts[2]}";
+        return appointment["doctorId"] == doctorId && appointmentDate == date;
+      }
+      return false;
+    }).toList();
+
+    // Get booked time
+    List<String> bookedTimes = bookedAppointments.map((appointment) {
+      List<String> parts = appointment["date"].split('-');
+      if (parts.length >= 5) {
+        // change to 09:00 format
+        return "${parts[3]}:${parts[4]}";
+      }
+      return "";
+    }).where((time) => time.isNotEmpty).toList();
+
+    // Filter out booked time
+    return allTimeSlots.where((slot) => !bookedTimes.contains(slot)).toList();
   }
 
 
@@ -87,6 +147,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     if (_selectedDoctor == null) return false;
 
     String weekday = DateFormat('EEEE').format(date);
+    String formattedDate = DateFormat('yyyy-MM-dd').format(date);
 
     var doctorData = _doctorController.doctorList.firstWhere(
           (doc) => doc["firstName"] == _selectedDoctor,
@@ -95,8 +156,38 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 
     if (doctorData.isEmpty || doctorData["availability"] == null) return false;
 
-    // Check if any availability slot matches the weekday
-    return doctorData["availability"].any((slot) => slot["day"] == weekday);
+    bool isWeekdayAvailable = doctorData["availability"].any((slot) => slot["day"] == weekday);
+
+    // No availble date at all
+    if (!isWeekdayAvailable) return false;
+
+    // check time slots for that day
+    var availabilityForDay = doctorData["availability"].firstWhere(
+          (slot) => slot["day"] == weekday,
+      orElse: () => null,
+    );
+
+    if (availabilityForDay == null || availabilityForDay["hours"] == null) return false;
+
+    var hours = availabilityForDay["hours"].split('-');
+    DateTime startTime = DateFormat("HH:mm").parse(hours[0]);
+    DateTime endTime = DateFormat("HH:mm").parse(hours[1]);
+
+    List<String> timeSlots = [];
+    while (startTime.isBefore(endTime)) {
+      timeSlots.add(DateFormat("HH:mm").format(startTime));
+      startTime = startTime.add(Duration(hours: 1));
+    }
+
+    // Filter out already booked time slots
+    List<String> availableTimeSlots = filterBookedTimeSlots(
+        timeSlots,
+        doctorData["id"],
+        formattedDate
+    );
+
+    // Disable date if no time slot
+    return availableTimeSlots.isNotEmpty;
   }
 
 
@@ -133,26 +224,24 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 
     for (int i = 0; i < 30; i++) {
       DateTime checkDate = fromDate.add(Duration(days: i));
-      String weekday = DateFormat('EEEE').format(checkDate);
-
-      // Check if this day is in the availability list
-      bool isAvailable = doctorData["availability"]
-          .any((slot) => slot["day"] == weekday);
-
-      if (isAvailable) {
+      if (isDateAvailable(checkDate)) {
         return checkDate;
       }
     }
 
-    // No available date found within 30 days
+    //No avaible date in the next 30 days
     return null;
   }
 
   Future<bool> addAppointment(Map<String,dynamic> requestBody) async{
+    //var ipAddress = '192.168.1.157';
+    var ipAddress = '10.0.2.2';
+
+    print('Request Body: ${requestBody}');
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.157:8080/api/appointments'),
+        Uri.parse('http://${ipAddress}:8080/api/appointments/book'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -164,12 +253,12 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
         return true;
       }
       else {
-        dev.log('Error: ${response.statusCode}');
+        print('Error add: ${response.statusCode}');
 
         return false;
       }
     } catch (e) {
-      dev.log('Error: $e');
+      print('Error add: $e');
       return false;
     }
   }
@@ -256,11 +345,14 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                   TextFormField(
                     decoration: InputDecoration(
                       labelText: "Select Date",
-                      hintText: _selectedDate == null ? "Please select a doctor first" : "",
+                      hintText: _selectedDoctor == null ? "Please select a doctor first" : "",
                     ),
                     readOnly: true,
                     onTap: _selectedDoctor != null
                         ? () async {
+                      // First, fetch the latest appointments
+                      await appointmentController.fetchAppointment();
+
                       DateTime now = DateTime.now();
                       DateTime? nearestAvailableDate = getNearestAvailableDate(_selectedDoctor!, now);
 
@@ -276,18 +368,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                         initialDate: nearestAvailableDate,
                         firstDate: now,
                         lastDate: DateTime(2030),
-                        selectableDayPredicate: (DateTime day) {
-                          String weekday = DateFormat('EEEE').format(day);
-                          var doctorData = _doctorController.doctorList.firstWhere(
-                                (doc) => doc["firstName"] == _selectedDoctor,
-                            orElse: () => {},
-                          );
-
-                          if (doctorData.isEmpty || doctorData["availability"] == null) return false;
-
-                          return doctorData["availability"]
-                              .any((slot) => slot["day"] == weekday);
-                        },
+                        selectableDayPredicate: isDateAvailable,
                       );
 
                       if (pickedDate != null) {
@@ -349,7 +430,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                         );
 
                         //Hardcode patient Id
-                        final String _patientId = "67f368ba18e7ac37286aa89e";
+                        final String _patientId = "67f368c618e7ac37286aa89f";
 
                         var doctorData = _doctorController.doctorList.firstWhere(
                               (doc) => doc["firstName"] == _selectedDoctor,
@@ -378,26 +459,39 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                           "specialization": doctorData["specialization"]
                         };
 
-                        if(await addAppointment(requestBody)){
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text('Successfully booked')));
-                          // clear form
-                          setState(() {
-                            _selectedType = null;
-                            _selectedDoctor = null;
-                            _selectedDate = null;
-                            _selectedTime = null;
-                            _problemDescription = null;
-                            _problemDescriptionController.clear();
-                          });
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => BookingSuccessful()),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text('Failed booking appointment')));
-                        }
+                        setState(() {
+                          _selectedType = null;
+                          _selectedDoctor = null;
+                          _selectedDate = null;
+                          _selectedTime = null;
+                          _problemDescription = null;
+                          _problemDescriptionController.clear();
+                        });
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Payment(requestBody)),
+                        );
+
+                        // if(await addAppointment(requestBody)){
+                        //   ScaffoldMessenger.of(context)
+                        //       .showSnackBar(SnackBar(content: Text('Successfully booked')));
+                        //   // clear form
+                        //   setState(() {
+                        //     _selectedType = null;
+                        //     _selectedDoctor = null;
+                        //     _selectedDate = null;
+                        //     _selectedTime = null;
+                        //     _problemDescription = null;
+                        //     _problemDescriptionController.clear();
+                        //   });
+                        //   Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(builder: (context) => Payment(requestBody)),
+                        //   );
+                        // } else {
+                        //   ScaffoldMessenger.of(context)
+                        //       .showSnackBar(SnackBar(content: Text('Failed booking appointment')));
+                        // }
                       }
                     },
                     child: Text("Book Appointment"),
