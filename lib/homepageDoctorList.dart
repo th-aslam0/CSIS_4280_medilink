@@ -11,6 +11,8 @@ import 'package:group02_medilink/doctorDetail.dart';
 import 'package:group02_medilink/doctorInfo.dart';
 import 'package:group02_medilink/registrationForm.dart';
 
+import 'manageAppointments.dart';
+
 void main() {
   runApp(Homepage());
 }
@@ -262,6 +264,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ))
           ),
+          Container(
+            alignment: Alignment.center,
+            child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ManageAppointments()),
+                  );
+                },
+                child: Text(
+                  "Manage Appointments",
+                  textAlign: TextAlign.center,
+                )),
+          )
         ],
       )),
     );

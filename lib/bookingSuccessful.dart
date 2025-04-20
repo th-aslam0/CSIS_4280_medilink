@@ -1,14 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:group02_medilink/controller/appointmentController.dart';
-
+import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 import 'appointmentDetails.dart';
 import 'manageAppointments.dart';
 
 class BookingSuccessful extends StatelessWidget {
 
   final AppointmentController appointmentController = Get.find();
+
   @override
   Widget build(BuildContext context) {
     final String patientId = appointmentController.patientId.value;
@@ -54,7 +58,6 @@ class BookingSuccessful extends StatelessWidget {
 
               SizedBox(height: 30),
 
-              // manage appontments button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
