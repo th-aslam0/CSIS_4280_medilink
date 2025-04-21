@@ -430,7 +430,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                         );
 
                         //Hardcode patient Id
-                        final String _patientId = "67f368c618e7ac37286aa89f";
+                        final String _patientId = "67f368ba18e7ac37286aa89e";
 
                         var doctorData = _doctorController.doctorList.firstWhere(
                               (doc) => doc["firstName"] == _selectedDoctor,
@@ -449,7 +449,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 
                         //build requestBody
                         final Map<String,dynamic> requestBody = {
-                          "patientId": _patientId,
+                          "patientId": appointmentController.patientId.value,
                           "doctorId": doctorData["id"],
                           "date": formattedDateTime,
                           "patientDesc": _problemDescription,
