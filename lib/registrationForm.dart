@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:group02_medilink/bookingSuccessful.dart';
 import 'package:group02_medilink/registerSuccessful.dart';
+
+import 'controller/userController.dart';
 
 class RegistrationPage extends StatefulWidget {
   @override
@@ -8,6 +12,7 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
+  final UserController userController = Get.put(UserController());
   final _formKey = GlobalKey<FormState>();
   bool _agreeToTerms = false;
 
@@ -60,14 +65,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     ),
                     ElevatedButton(
                       onPressed: () {
+                        userController.register();
                         if (_formKey.currentState!.validate() &&
                             _agreeToTerms) {
                           // Handle form submission
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RegisterSuccessful(),
-                              ));
+                          userController.register();
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //       builder: (context) => RegisterSuccessful(),
+                          //     ));
                         }
                       },
                       child: Text('Sign Up'),
@@ -84,7 +91,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Widget _buildTextField(String label,
       {bool obscureText = false,
-      TextInputType keyboardType = TextInputType.text}) {
+        TextInputType keyboardType = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
@@ -99,6 +106,34 @@ class _RegistrationPageState extends State<RegistrationPage> {
             return 'Please enter your $label';
           }
           return null;
+        },
+        onChanged: (value) {
+          switch (label) {
+            case 'First Name':
+              userController.firstName = value;
+              break;
+            case 'Last Name':
+              userController.lastName = value;
+              break;
+            case 'Email':
+              userController.email = value;
+              break;
+            case 'Home Address':
+              userController.homeAddress = value;
+              break;
+            case 'Date of Birth':
+              userController.dateOfBirth = value;
+              break;
+            case 'Phone Number':
+              userController.phoneNumber = value;
+              break;
+            case 'Password':
+              userController.password = value;
+              break;
+            case 'Confirm Password':
+              userController.confirmPassword = value;
+              break;
+          }
         },
       ),
     );
@@ -123,6 +158,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
           setState(() {
             selectedValue = newValue;
           });
+
+          if (label == 'Marital Status') {
+            userController.maritalStatus = newValue!;
+          } else if (label == 'Gender') {
+            userController.gender = newValue!;
+          }
         },
         validator: (value) =>
             value == null ? 'Please select your $label' : null,
