@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class Payment extends StatefulWidget {
-
   final Map<String, dynamic> requestBody;
 
   const Payment(this.requestBody, {Key? key}) : super(key: key);

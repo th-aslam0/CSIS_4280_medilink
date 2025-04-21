@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:group02_medilink/controller/appointmentController.dart';
+import 'package:group02_medilink/homepageDoctorList.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'appointmentDetails.dart';
@@ -50,8 +51,14 @@ class BookingSuccessful extends StatelessWidget {
                   textStyle: TextStyle(fontSize: 16),
                 ),
                 onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
+                  // Navigator.pop(context);
+                  // Navigator.pop(context);
+                  appointmentController.fetchAppointmentByPatientId(patientId);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Homepage()),
+                  );
                 },
                 child: Text("Home Page"),
               ),

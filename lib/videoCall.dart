@@ -4,7 +4,7 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 
 const String appId = "94ec467231d749f080f1360cf5a7ec72";
 const String channelName = "test_channel";
-const String token = "007eJxTYLieMv/C9OL3K3NOyy6zPyn03SdXbN7y+Ro/q9zTI4wn8hoqMFiapCabmJkbGRummJtYphlYGKQZGpsZJKeZJpqnJpsbXcz6md4QyMiQWR/MwAiFID4PQ0lqcUl8ckZiXl5qDgMDAH2JItk=";
+const String token = "007eJxTYAjbObG7WuCU0Ert83K/PfUfye7qjJ2yUThZ4GJG3ySGHXsVGCxNUpNNzMyNjA1TzE0s0wwsDNIMjc0MktNME81Tk82NrNezZjQEMjIIMIqxMjJAIIjPw1CSWlwSn5yRmJeXmsPAAADMgR/X";
 
 
 class VideoCall extends StatefulWidget {
